@@ -10,8 +10,18 @@
       "email": "contact@superduperbundle.com",
       "url": "https://superduperbundle.com/tools/api/"
     },
-    "termsOfService": "https://superduperbundle.com/tools/api/#terms"
+    "termsOfService": "https://superduperbundle.com/tools/api/#terms",
+    "license": {
+      "name": "SuperDuperBundle API terms (client code: MIT)",
+      "url": "https://superduperbundle.com/tools/api/#terms"
+    }
   },
+  "security": [
+    {},
+    {
+      "apiKey": []
+    }
+  ],
   "servers": [
     {
       "url": "https://superduperbundle.com/api/v1"
@@ -121,8 +131,18 @@
               }
             }
           },
+          "401": {
+            "description": "Unknown or disabled API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
           "429": {
-            "description": "Too many uncached lookups from one address.",
+            "description": "Too many uncached lookups from one address or key.",
             "content": {
               "application/json": {
                 "schema": {
@@ -146,6 +166,14 @@
     }
   },
   "components": {
+    "securitySchemes": {
+      "apiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "Optional free key from https://superduperbundle.com/tools/api/#keys: 2,500 uncached games per 10 minutes (10,000 for partner keys) instead of 600 per address."
+      }
+    },
     "schemas": {
       "Offer": {
         "type": "object",

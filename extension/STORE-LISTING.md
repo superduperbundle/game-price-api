@@ -5,7 +5,7 @@ Same text everywhere. Zips: `npm run zip` → `.output/*-chrome.zip` (Chrome, Ed
 **Name:** SuperDuperBundle: lowest key price on Steam
 **Short description (≤ 132 chars):** See the lowest listed key price for a game from the stores SuperDuperBundle compares, right on its Steam store page.
 **Category:** Shopping
-**Website / support:** https://superduperbundle.com/tools/api/ · contact@superduperbundle.com
+**Website / support:** https://superduperbundle.com/tools/extension/ · contact@superduperbundle.com
 **Privacy policy:** https://superduperbundle.com/privacy/ (add the "Browser extension" section in the release that announces it)
 
 **Description:**

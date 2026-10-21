@@ -8,7 +8,7 @@ export default defineConfig({
     name: 'SuperDuperBundle: lowest key price on Steam',
     short_name: 'SuperDuperBundle',
     description: 'See the lowest listed key price for a game from the stores SuperDuperBundle compares, right on its Steam store page.',
-    homepage_url: 'https://superduperbundle.com/tools/api/',
+    homepage_url: 'https://superduperbundle.com/tools/extension/',
     host_permissions: ['https://superduperbundle.com/*'],
     permissions: ['storage'],
     ...(browser === 'firefox' ? {

@@ -1,0 +1,23 @@
+name: CI
+on:
+  push: { branches: [main] }
+  pull_request:
+  schedule: [{ cron: '30 6 * * 1' }]   # weekly live smoke test: catches API changes
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: JS client (offline + live)
+        working-directory: js
+        run: node test.js && LIVE=1 node test.js
+      - name: Python client (live)
+        working-directory: python
+        run: python test_client.py
+      - name: MCP server (live)
+        working-directory: mcp
+        run: npm ci && node test.js

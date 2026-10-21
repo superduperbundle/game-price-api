@@ -1,0 +1,54 @@
+# Publishing on a tag, with no long-lived tokens: npm and PyPI trusted publishing (GitHub OIDC), MCP registry login via
+# GitHub OIDC. Tags: js-v1.0.1 (npm superduperbundle), mcp-v1.0.1 (npm @superduperbundle/mcp-server + MCP registry),
+# py-v1.0.1 (PyPI superduperbundle). Bump the version in the package file first; the tag must match it.
+# One-time setup (owner): npm package settings -> Trusted publisher -> GitHub Actions, repo superduperbundle/game-price-api,
+# workflow publish.yml (npm needs the package to exist: the first version is published by hand). PyPI: add a pending
+# trusted publisher for project "superduperbundle", same repo + workflow, environment "pypi".
+name: Publish
+on:
+  push:
+    tags: ['js-v*', 'mcp-v*', 'py-v*']
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  npm:
+    if: startsWith(github.ref_name, 'js-v') || startsWith(github.ref_name, 'mcp-v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, registry-url: 'https://registry.npmjs.org' }
+      - run: npm install -g npm@latest   # trusted publishing needs npm 11.5.1+
+      - name: Check tag = package version
+        working-directory: ${{ startsWith(github.ref_name, 'js-v') && 'js' || 'mcp' }}
+        run: test "v$(node -p "require('./package.json').version")" = "${GITHUB_REF_NAME#*-}"
+      - name: Test
+        working-directory: ${{ startsWith(github.ref_name, 'js-v') && 'js' || 'mcp' }}
+        run: npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts; node test.js
+      - name: Publish to npm
+        working-directory: ${{ startsWith(github.ref_name, 'js-v') && 'js' || 'mcp' }}
+        run: cp ../LICENSE . && npm publish --access public
+      - name: Publish to the MCP registry
+        if: startsWith(github.ref_name, 'mcp-v')
+        working-directory: mcp
+        run: |
+          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
+          ./mcp-publisher login github-oidc
+          ./mcp-publisher publish
+  pypi:
+    if: startsWith(github.ref_name, 'py-v')
+    runs-on: ubuntu-latest
+    environment: pypi
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: Check tag = package version
+        working-directory: python
+        run: test "v$(grep -m1 '^version' pyproject.toml | cut -d'"' -f2)" = "${GITHUB_REF_NAME#py-}"
+      - name: Build
+        working-directory: python
+        run: cp ../LICENSE . && python -m pip install build && python -m build
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with: { packages-dir: python/dist }

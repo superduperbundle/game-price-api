@@ -1,0 +1,21 @@
+{
+  "name": "@superduperbundle/mcp-server",
+  "version": "1.0.0",
+  "mcpName": "io.github.superduperbundle/game-prices",
+  "description": "MCP server for live PC game key prices: lets AI assistants look up the lowest listed price across official stores and key stores (SuperDuperBundle Game Price API).",
+  "type": "module",
+  "bin": { "superduperbundle-mcp": "index.js" },
+  "files": ["index.js", "README.md", "LICENSE"],
+  "engines": { "node": ">=18" },
+  "scripts": { "test": "node test.js" },
+  "keywords": ["mcp", "model context protocol", "game prices", "steam", "game keys", "price comparison", "superduperbundle"],
+  "homepage": "https://superduperbundle.com/tools/api/",
+  "repository": { "type": "git", "url": "git+https://github.com/superduperbundle/game-price-api.git", "directory": "mcp" },
+  "bugs": { "url": "https://github.com/superduperbundle/game-price-api/issues" },
+  "author": "SuperDuperBundle team <contact@superduperbundle.com> (https://superduperbundle.com/)",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "zod": "^4.6.7"
+  }
+}

@@ -1,0 +1,28 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "superduperbundle"
+version = "1.0.0"
+description = "Client for the free SuperDuperBundle Game Price API: lowest listed PC game key prices by name, Steam app ID or store URL."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+authors = [{ name = "SuperDuperBundle team", email = "contact@superduperbundle.com" }]
+keywords = ["game prices", "steam", "game keys", "price comparison", "api client", "deals"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+  "Intended Audience :: Developers",
+  "Topic :: Games/Entertainment",
+]
+
+[project.urls]
+Homepage = "https://superduperbundle.com/tools/api/"
+Documentation = "https://superduperbundle.com/tools/api/"
+Source = "https://github.com/superduperbundle/game-price-api"
+Issues = "https://github.com/superduperbundle/game-price-api/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/superduperbundle"]

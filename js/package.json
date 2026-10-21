@@ -1,0 +1,18 @@
+{
+  "name": "superduperbundle",
+  "version": "1.0.0",
+  "description": "Client for the free SuperDuperBundle Game Price API: lowest listed PC game key prices by name, Steam app ID or store URL.",
+  "type": "module",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "exports": { ".": { "types": "./index.d.ts", "default": "./index.js" } },
+  "files": ["index.js", "index.d.ts", "README.md", "LICENSE"],
+  "engines": { "node": ">=18" },
+  "scripts": { "test": "node test.js" },
+  "keywords": ["game prices", "steam", "game keys", "price comparison", "api client", "deals", "superduperbundle"],
+  "homepage": "https://superduperbundle.com/tools/api/",
+  "repository": { "type": "git", "url": "git+https://github.com/superduperbundle/game-price-api.git", "directory": "js" },
+  "bugs": { "url": "https://github.com/superduperbundle/game-price-api/issues" },
+  "author": "SuperDuperBundle team <contact@superduperbundle.com> (https://superduperbundle.com/)",
+  "license": "MIT"
+}

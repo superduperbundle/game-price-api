@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SuperDuperBundle: lowest key price on Steam
 // @namespace    https://superduperbundle.com/
-// @version      1.0.0
+// @version      1.0.1
 // @description  Shows the lowest listed key price for a game from the stores SuperDuperBundle compares, right on its Steam store page, with a link to the full comparison.
 // @author       SuperDuperBundle team
 // @homepageURL  https://superduperbundle.com/tools/api/

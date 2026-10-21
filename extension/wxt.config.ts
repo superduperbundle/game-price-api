@@ -6,7 +6,7 @@ import { defineConfig } from 'wxt';
 export default defineConfig({
   manifest: ({ browser }) => ({
     name: 'SuperDuperBundle: lowest key price on Steam',
-    short_name: 'SuperDuperBundle',
+    short_name: 'SDB Prices',
     description: 'See the lowest listed key price for a game from the stores SuperDuperBundle compares, right on its Steam store page.',
     homepage_url: 'https://superduperbundle.com/tools/extension/',
     host_permissions: ['https://superduperbundle.com/*'],

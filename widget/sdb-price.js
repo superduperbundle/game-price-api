@@ -10,7 +10,6 @@
 (() => {
   if (globalThis.sdbRenderPrice) return;
   const money = (n) => `$${Number(n).toFixed(2)}`;
-  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const ago = (iso) => {
     if (!iso) return '';
     const h = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 3600000));
@@ -30,26 +29,36 @@
     a.brand { color:var(--ink2); }
     .off { font-weight:700; color:var(--mint); }
   `;
+  // Built with DOM calls and textContent only (no innerHTML: API text never becomes markup; store reviewers flag innerHTML).
+  const h = (tag, attrs, ...kids) => {
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) el.setAttribute(k, v);
+    for (const k of kids) if (k !== null && k !== undefined && k !== false) el.append(k);
+    return el;
+  };
+  const SITE = 'https://superduperbundle.com/';
+  const link = (cls, href, text) => h('a', { class: cls, href: String(href).startsWith(SITE) ? href : SITE, target: '_blank', rel: 'noopener' }, text);
   function render(host, g, opts = {}) {
     const root = host.shadowRoot || host.attachShadow({ mode: 'open' });
     const l = g && g.lowest;
     const local = typeof opts.localUsd === 'number' ? opts.localUsd : null;
     const worth = !!(g && g.state === 'price' && l && !(g.store_count < 2 && l.store === 'steam') && !(local !== null && local <= l.price));
     host.hidden = !worth;
-    if (!worth) { root.innerHTML = ''; return false; }
+    root.replaceChildren();
+    if (!worth) return false;
     const theme = opts.theme === 'dark' || opts.theme === 'light' ? opts.theme : 'auto';
-    const steamKey = g.lowest_steam_key && g.lowest_steam_key.store !== l.store ? `<div class="sub">Cheapest Steam key: ${money(g.lowest_steam_key.price)} at ${esc(g.lowest_steam_key.store_name)}</div>` : '';
-    const what = g.store_count >= 2
-      ? `Lowest listed US price at ${esc(l.store_name)} <span class="sub">(${esc(l.drm || 'PC')} key, ${esc(l.region || 'region not stated')})</span>`
-      : `US price at ${esc(l.store_name)} <span class="sub">(${esc(l.drm || 'PC')} key)</span>`;
-    root.innerHTML = `<style>${CSS}</style>
-      <div class="box ${theme}" part="box">
-        <span class="price">${money(l.price)}</span>${l.discount_pct ? ` <span class="off">−${l.discount_pct}%</span>` : ''}
-        <div class="what">${what}${steamKey}
-          <div class="sub">${g.store_count >= 2 ? `${g.store_count} stores compared · ` : ''}${ago(l.checked_at)} · prices by <a class="brand" href="https://superduperbundle.com/" target="_blank" rel="noopener">SuperDuperBundle</a>, which may earn a commission from store links</div>
-        </div>
-        <a class="go" href="${esc(g.url)}" target="_blank" rel="noopener">${g.store_count >= 2 ? 'Compare prices' : 'View prices'}</a>
-      </div>`;
+    const multi = g.store_count >= 2;
+    const keyNote = `(${l.drm || 'PC'} key${multi ? `, ${l.region || 'region not stated'}` : ''})`;
+    root.append(
+      h('style', null, CSS),
+      h('div', { class: `box ${theme}`, part: 'box' },
+        h('span', { class: 'price' }, money(l.price)),
+        l.discount_pct ? h('span', { class: 'off' }, `−${l.discount_pct}%`) : null,
+        h('div', { class: 'what' },
+          `${multi ? 'Lowest listed US price' : 'US price'} at ${l.store_name} `, h('span', { class: 'sub' }, keyNote),
+          g.lowest_steam_key && g.lowest_steam_key.store !== l.store ? h('div', { class: 'sub' }, `Cheapest Steam key: ${money(g.lowest_steam_key.price)} at ${g.lowest_steam_key.store_name}`) : null,
+          h('div', { class: 'sub' }, `${multi ? `${g.store_count} stores compared · ` : ''}${ago(l.checked_at)} · prices by `, link('brand', SITE, 'SuperDuperBundle'), ', which may earn a commission from store links')),
+        link('go', g.url, multi ? 'Compare prices' : 'View prices')));
     return true;
   }
   globalThis.sdbRenderPrice = render;

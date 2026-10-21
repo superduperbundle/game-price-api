@@ -21,6 +21,6 @@ const header = `// ==UserScript==
 // Sends only the Steam app ID of the page you are on to superduperbundle.com. No tracking, no cookies, nothing else read.
 // SuperDuperBundle may earn a commission when you buy through store links on its site; prices and their order are not affected.
 `;
-const out = `${header}\n${readFileSync(here('../widget/sdb-price.js'), 'utf8')}\n${readFileSync(here('main.js'), 'utf8')}`;
+const out = [header, ...['../widget/sdb-price.js', '../widget/steam-page.js', 'main.js'].map((f) => readFileSync(here(f), 'utf8'))].join('\n');
 writeFileSync(here('superduperbundle.user.js'), out);
 console.log(`superduperbundle.user.js ${version}, ${out.length} bytes`);

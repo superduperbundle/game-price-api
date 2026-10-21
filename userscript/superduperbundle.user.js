@@ -17,15 +17,17 @@
 // Sends only the Steam app ID of the page you are on to superduperbundle.com. No tracking, no cookies, nothing else read.
 // SuperDuperBundle may earn a commission when you buy through store links on its site; prices and their order are not affected.
 
-// <sdb-price> web component: the UI kernel every visual shell reuses (userscript, browser extension, embeds, OBS).
-// Renders one game's lowest listed price from the SuperDuperBundle API in a shadow root (page styles cannot break it).
-// Data in: el.data = <Game from /api/v1/lookup/>  (the shell fetches, so each shell can use its own transport:
-// GM.xmlHttpRequest in a userscript, the extension's background worker, plain fetch on a web page).
-// Attributes: theme="light|dark|auto" (default auto), compact (one line).
-// Shows nothing for games with no price, and nothing when the only price is Steam's own (no comparison to offer).
+// UI kernel shared by every visual shell (userscript, browser extension, embeds, OBS): one game's lowest listed price from
+// the SuperDuperBundle API, drawn in a shadow root so page styles cannot break it.
+//   globalThis.sdbRenderPrice(host, game, { theme, localUsd }) -> true when shown   (any element; used by the extension,
+//                                                     whose content scripts have no customElements in Chrome)
+//   <sdb-price theme="light|dark">, el.localUsd = n, el.data = game                 (pages and userscripts)
+// game = one result of /api/v1/lookup/; the shell fetches it with its own transport.
+// Nothing is shown for games with no price, when the only price is Steam's own, or when the visitor's own store page
+// already shows a US-dollar price at or below ours (regional pricing: our prices are US prices).
 // Code: MIT. Data shown under the API terms: the badge always carries the visible "SuperDuperBundle" link.
 (() => {
-  if (typeof customElements === 'undefined' || customElements.get('sdb-price')) return;
+  if (globalThis.sdbRenderPrice) return;
   const money = (n) => `$${Number(n).toFixed(2)}`;
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const ago = (iso) => {
@@ -33,54 +35,77 @@
     const h = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 3600000));
     return h < 1 ? 'checked within the hour' : h < 48 ? `checked ${h} h ago` : `checked ${Math.round(h / 24)} days ago`;
   };
+  const DARK = '--bg:#141A2E; --ink:#E8ECF6; --ink2:#A3ACC2; --line:#2A3350; --accent:#8C9DFF; --mint:#4FD39F; --on:#0B1020;';
   const CSS = `
     :host { all: initial; display: block; font: 14px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-    :host([hidden]) { display: none; }
-    .box { --bg:#fff; --ink:#10162B; --ink2:#5A6378; --line:#DDE2EC; --accent:#2F4BFF; --mint:#0B8F5E;
+    .box { --bg:#fff; --ink:#10162B; --ink2:#5A6378; --line:#DDE2EC; --accent:#2F4BFF; --mint:#0B8F5E; --on:#fff;
       background:var(--bg); color:var(--ink); border:1px solid var(--line); border-radius:10px; padding:10px 12px; display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; }
-    :host([theme=dark]) .box, .dark { --bg:#141A2E; --ink:#E8ECF6; --ink2:#A3ACC2; --line:#2A3350; --accent:#8C9DFF; --mint:#4FD39F; }
-    @media (prefers-color-scheme: dark) { :host(:not([theme=light])) .box { --bg:#141A2E; --ink:#E8ECF6; --ink2:#A3ACC2; --line:#2A3350; --accent:#8C9DFF; --mint:#4FD39F; } }
+    .box.dark { ${DARK} }
+    @media (prefers-color-scheme: dark) { .box.auto { ${DARK} } }
     .price { font-weight:800; font-size:18px; color:var(--mint); font-variant-numeric: tabular-nums; }
     .what { flex:1 1 220px; min-width:0; }
     .sub { color:var(--ink2); font-size:12px; }
-    a.go { color:#fff; background:var(--accent); text-decoration:none; font-weight:700; padding:7px 12px; border-radius:8px; white-space:nowrap; }
-    :host([theme=dark]) a.go { color:#0B1020; }
+    a.go { color:var(--on); background:var(--accent); text-decoration:none; font-weight:700; padding:7px 12px; border-radius:8px; white-space:nowrap; }
     a.brand { color:var(--ink2); }
     .off { font-weight:700; color:var(--mint); }
   `;
-  class SdbPrice extends HTMLElement {
-    constructor() { super(); this.attachShadow({ mode: 'open' }); this._data = null; }
-    set data(g) { this._data = g; this.render(); }
-    get data() { return this._data; }
-    render() {
-      const g = this._data, l = g && g.lowest;
-      // localUsd: the price the visitor's own store page shows, in US dollars, when the shell can read it. Our prices are
-      // US prices; with regional pricing (Steam in MENA, Latin America...) the visitor's local price can be lower: then
-      // the badge would advertise a worse deal, so it stays hidden.
-      const local = typeof this.localUsd === 'number' ? this.localUsd : null;
-      const worth = g && g.state === 'price' && l && !(g.store_count < 2 && l.store === 'steam') && !(local !== null && local <= l.price);
-      this.hidden = !worth;
-      if (!worth) { this.shadowRoot.innerHTML = ''; return; }
-      const steamKey = g.lowest_steam_key && g.lowest_steam_key.store !== l.store ? `<div class="sub">Cheapest Steam key: ${money(g.lowest_steam_key.price)} at ${esc(g.lowest_steam_key.store_name)}</div>` : '';
-      const what = g.store_count >= 2
-        ? `Lowest listed US price at ${esc(l.store_name)} <span class="sub">(${esc(l.drm || 'PC')} key, ${esc(l.region || 'region not stated')})</span>`
-        : `US price at ${esc(l.store_name)} <span class="sub">(${esc(l.drm || 'PC')} key)</span>`;
-      this.shadowRoot.innerHTML = `<style>${CSS}</style>
-        <div class="box" part="box">
-          <span class="price">${money(l.price)}</span>${l.discount_pct ? ` <span class="off">−${l.discount_pct}%</span>` : ''}
-          <div class="what">${what}${steamKey}
-            <div class="sub">${g.store_count >= 2 ? `${g.store_count} stores compared · ` : ''}${ago(l.checked_at)} · prices by <a class="brand" href="https://superduperbundle.com/" target="_blank" rel="noopener">SuperDuperBundle</a>, which may earn a commission from store links</div>
-          </div>
-          <a class="go" href="${esc(g.url)}" target="_blank" rel="noopener">${g.store_count >= 2 ? 'Compare prices' : 'View prices'}</a>
-        </div>`;
-    }
+  function render(host, g, opts = {}) {
+    const root = host.shadowRoot || host.attachShadow({ mode: 'open' });
+    const l = g && g.lowest;
+    const local = typeof opts.localUsd === 'number' ? opts.localUsd : null;
+    const worth = !!(g && g.state === 'price' && l && !(g.store_count < 2 && l.store === 'steam') && !(local !== null && local <= l.price));
+    host.hidden = !worth;
+    if (!worth) { root.innerHTML = ''; return false; }
+    const theme = opts.theme === 'dark' || opts.theme === 'light' ? opts.theme : 'auto';
+    const steamKey = g.lowest_steam_key && g.lowest_steam_key.store !== l.store ? `<div class="sub">Cheapest Steam key: ${money(g.lowest_steam_key.price)} at ${esc(g.lowest_steam_key.store_name)}</div>` : '';
+    const what = g.store_count >= 2
+      ? `Lowest listed US price at ${esc(l.store_name)} <span class="sub">(${esc(l.drm || 'PC')} key, ${esc(l.region || 'region not stated')})</span>`
+      : `US price at ${esc(l.store_name)} <span class="sub">(${esc(l.drm || 'PC')} key)</span>`;
+    root.innerHTML = `<style>${CSS}</style>
+      <div class="box ${theme}" part="box">
+        <span class="price">${money(l.price)}</span>${l.discount_pct ? ` <span class="off">−${l.discount_pct}%</span>` : ''}
+        <div class="what">${what}${steamKey}
+          <div class="sub">${g.store_count >= 2 ? `${g.store_count} stores compared · ` : ''}${ago(l.checked_at)} · prices by <a class="brand" href="https://superduperbundle.com/" target="_blank" rel="noopener">SuperDuperBundle</a>, which may earn a commission from store links</div>
+        </div>
+        <a class="go" href="${esc(g.url)}" target="_blank" rel="noopener">${g.store_count >= 2 ? 'Compare prices' : 'View prices'}</a>
+      </div>`;
+    return true;
   }
-  customElements.define('sdb-price', SdbPrice);
+  globalThis.sdbRenderPrice = render;
+  if (typeof customElements !== 'undefined' && customElements && !customElements.get('sdb-price')) {
+    customElements.define('sdb-price', class extends HTMLElement {
+      set data(g) { this._data = g; render(this, g, { theme: this.getAttribute('theme'), localUsd: this.localUsd }); }
+      get data() { return this._data; }
+    });
+  }
 })();
 
-// Userscript body (build.mjs puts the header + widget/sdb-price.js in front). Steam app pages: one <sdb-price> badge above
-// the purchase area with the lowest listed key price from SuperDuperBundle. One API call per page, answers cached in
-// localStorage for 15 minutes, silent on any error or rate limit (no badge, no console noise).
+// Steam store page adapter shared by the userscript and the extension: which app the page is, where the badge goes, and
+// the price Steam itself shows the visitor (in US dollars only; any other currency = unknown).
+globalThis.sdbSteamAppId = (loc) => { const m = loc.pathname.match(/^\/app\/(\d+)/); return m ? m[1] : null; };
+
+/** The base game's price on this Steam page when Steam shows it in US dollars ("$39.99", "$39.99 USD"); else null. */
+globalThis.sdbSteamUsd = (root) => {
+  const el = root.querySelector('.game_area_purchase_game_wrapper .discount_final_price, .game_area_purchase_game_wrapper .game_purchase_price, .discount_final_price, .game_purchase_price');
+  const t = el && el.textContent.trim();
+  const m = t && t.match(/^\$\s?(\d+(?:[.,]\d{2})?)(?:\s*USD)?$/);
+  return m ? Number(m[1].replace(',', '.')) : null;
+};
+
+/** Puts the badge above the purchase area (once). Returns true when it is shown. */
+globalThis.sdbMountOnSteam = (doc, game) => {
+  const anchor = doc.querySelector('#game_area_purchase') || doc.querySelector('.game_area_purchase_game_wrapper');
+  if (!anchor || doc.querySelector('[data-sdb-badge]')) return false;
+  const host = doc.createElement('div');
+  host.setAttribute('data-sdb-badge', '');
+  host.style.margin = '0 0 12px';
+  anchor.parentNode.insertBefore(host, anchor);
+  return globalThis.sdbRenderPrice(host, game, { theme: 'dark', localUsd: globalThis.sdbSteamUsd(anchor) });
+};
+
+// Userscript body (build.mjs puts the header + widget/sdb-price.js in front). Steam app pages: one badge above the purchase
+// area with the lowest listed key price from SuperDuperBundle. One API call per page, answers cached in localStorage for
+// 15 minutes, silent on any error or rate limit (no badge, no console noise). Page logic shared with the extension: steam-page.js.
 const API = 'https://superduperbundle.com/api/v1/lookup/';
 const TTL = 15 * 60 * 1000;
 
@@ -98,31 +123,15 @@ async function game(appId) {
   const k = `sdb:${appId}`;
   try { const c = JSON.parse(localStorage.getItem(k) || 'null'); if (c && Date.now() - c.at < TTL) return c.g; } catch { /* storage blocked */ }
   const r = await get(`${API}?steam_id=${appId}&client=userscript`);
-  const g = r && r.results && r.results[0] || null;
+  if (!r) return null;   // error or rate limit: no badge, not cached (next page view tries again)
+  const g = (r.results && r.results[0]) || null;
   try { localStorage.setItem(k, JSON.stringify({ at: Date.now(), g })); } catch { /* storage blocked */ }
   return g;
 }
 
-/** The base game's price on this Steam page when Steam shows it in US dollars ("$39.99", "$39.99 USD"); else null. */
-function steamUsd(root) {
-  const el = root.querySelector('.game_area_purchase_game_wrapper .discount_final_price, .game_area_purchase_game_wrapper .game_purchase_price, .discount_final_price, .game_purchase_price');
-  const t = el && el.textContent.trim();
-  const m = t && t.match(/^\$\s?(\d+(?:[.,]\d{2})?)(?:\s*USD)?$/);
-  return m ? Number(m[1].replace(',', '.')) : null;
-}
-
 (async () => {
-  const m = location.pathname.match(/^\/app\/(\d+)/);
-  if (!m) return;
-  const g = await game(m[1]);
-  if (!g) return;
-  const anchor = document.querySelector('#game_area_purchase') || document.querySelector('.game_area_purchase_game_wrapper') || document.querySelector('.page_content_ctn .rightcol');
-  if (!anchor) return;
-  const el = document.createElement('sdb-price');
-  el.style.margin = '0 0 12px';
-  el.setAttribute('theme', 'dark');   // Steam's store is dark
-  const local = steamUsd(anchor);
-  if (local !== null) el.localUsd = local;
-  anchor.parentNode.insertBefore(el, anchor);
-  el.data = g;
+  const appId = sdbSteamAppId(location);
+  if (!appId) return;
+  const g = await game(appId);
+  if (g) sdbMountOnSteam(document, g);
 })();

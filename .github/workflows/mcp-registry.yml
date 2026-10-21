@@ -1,0 +1,19 @@
+# Lists the MCP server in the official MCP registry (registry.modelcontextprotocol.io) from mcp/server.json, using GitHub
+# OIDC for the io.github.superduperbundle namespace (no token). Run by hand after an npm release of @superduperbundle/mcp-server
+# (the registry checks that the npm package's "mcpName" equals server.json's "name").
+name: MCP registry
+on: workflow_dispatch
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish server.json
+        working-directory: mcp
+        run: |
+          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
+          ./mcp-publisher login github-oidc
+          ./mcp-publisher publish

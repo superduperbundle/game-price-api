@@ -1,6 +1,6 @@
 {
   "name": "@superduperbundle/mcp-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "mcpName": "io.github.superduperbundle/game-prices",
   "description": "MCP server for live PC game key prices: lets AI assistants look up the lowest listed price across official stores and key stores (SuperDuperBundle Game Price API).",
   "type": "module",

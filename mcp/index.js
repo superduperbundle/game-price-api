@@ -7,7 +7,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { z } from 'zod';
 
 const BASE = (process.env.SDB_BASE_URL ?? 'https://superduperbundle.com/api/v1').replace(/\/+$/, '');
-const VERSION = '1.0.0';
+const VERSION = '1.0.1';
 
 async function lookup(params) {
   const qs = new URLSearchParams({ ...params, client: 'mcp' });

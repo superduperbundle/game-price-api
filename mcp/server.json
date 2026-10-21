@@ -5,12 +5,12 @@
   "description": "Live PC game key prices: lowest listed price across official and key stores, with the compare link.",
   "websiteUrl": "https://superduperbundle.com/tools/api/",
   "repository": { "url": "https://github.com/superduperbundle/game-price-api", "source": "github", "subfolder": "mcp" },
-  "version": "1.0.0",
+  "version": "1.0.1",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "@superduperbundle/mcp-server",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "transport": { "type": "stdio" },
       "environmentVariables": [
         { "name": "SDB_API_KEY", "description": "Optional free API key for higher limits (https://superduperbundle.com/tools/api/#keys)", "isRequired": false, "isSecret": true }

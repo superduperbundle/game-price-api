@@ -1,6 +1,6 @@
 {
   "name": "superduperbundle",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Client for the free SuperDuperBundle Game Price API: lowest listed PC game key prices by name, Steam app ID or store URL.",
   "type": "module",
   "main": "./index.js",

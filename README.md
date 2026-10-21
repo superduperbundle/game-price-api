@@ -44,6 +44,12 @@ print(game["name"], game["lowest"]["price"], game["lowest"]["store_name"], game[
 }
 ```
 
+Or connect by URL, nothing to install (Claude, ChatGPT, Cursor and other clients that support remote MCP servers):
+
+```
+https://superduperbundle.com/mcp
+```
+
 Tools: `lookup_game_price` (name, Steam app ID or Steam URL) and `compare_game_prices` (up to 50 Steam app IDs).
 
 ## What you get

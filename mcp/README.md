@@ -17,3 +17,7 @@ Code: MIT. Price data: under the [API terms](https://superduperbundle.com/tools/
 
 Tools: `lookup_game_price` (game name, Steam app ID or Steam URL) and `compare_game_prices` (up to 50 Steam app IDs).
 Optional environment variable `SDB_API_KEY` (free key) for higher limits.
+
+## Remote endpoint (no install)
+
+`https://superduperbundle.com/mcp` (Streamable HTTP). Same tools; an optional key goes in `Authorization: Bearer <key>` or `X-API-Key`.

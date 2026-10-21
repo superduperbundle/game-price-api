@@ -7,7 +7,7 @@ out = f'extension/.output/superduperbundle-extension-{version}-sources.zip'
 with zipfile.ZipFile(out, 'w', zipfile.ZIP_DEFLATED) as z:
     for base in ('extension', 'widget'):
         for d, ds, fs in os.walk(base):
-            ds[:] = [x for x in ds if x not in ('node_modules', '.output', '.wxt')]
+            ds[:] = [x for x in ds if x not in ('node_modules', '.output', '.wxt', 'store-assets')]
             for f in fs:
                 p = os.path.join(d, f)
                 z.write(p, p.replace(os.sep, '/'))

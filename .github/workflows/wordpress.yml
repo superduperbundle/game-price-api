@@ -1,0 +1,45 @@
+# WordPress plugin (wordpress/superduperbundle-game-prices): PHP syntax on the oldest and newest supported PHP, the official
+# Plugin Check (what wordpress.org reviewers run), and a live render inside a real WordPress (wp-env) against the API.
+name: WordPress plugin
+on:
+  push: { branches: [main], paths: ['wordpress/**', '.github/workflows/wordpress.yml'] }
+  pull_request: { paths: ['wordpress/**'] }
+  workflow_dispatch:
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    strategy: { matrix: { php: ['7.4', '8.3'] } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with: { php-version: '${{ matrix.php }}', tools: none }
+      - run: find wordpress -name '*.php' -print0 | xargs -0 -n1 php -l
+  plugin-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: wordpress/plugin-check-action@v1
+        with:
+          build-dir: './wordpress/superduperbundle-game-prices'
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Start WordPress with the plugin
+        working-directory: wordpress
+        run: |
+          echo '{ "plugins": ["./superduperbundle-game-prices"] }' > .wp-env.json
+          npx -y @wordpress/env@10 start
+      - name: Render a price box (live API)
+        working-directory: wordpress
+        run: |
+          out=$(npx -y @wordpress/env@10 run cli wp eval 'echo sdbgp_render(array("game" => "Elden Ring", "offers" => 2));')
+          echo "$out"
+          echo "$out" | grep -q 'class="sdbgp-box"'
+          echo "$out" | grep -q 'superduperbundle.com/game/elden-ring/'
+          echo "$out" | grep -q 'utm_source=wordpress'
+          none=$(npx -y @wordpress/env@10 run cli wp eval 'echo "[" . sdbgp_render(array("game" => "zzqqxxnotagame")) . "]";')
+          echo "$none" | grep -q '\[\]'   # visitors (no logged-in user in wp eval) see nothing for an unknown game
+          npx -y @wordpress/env@10 run cli wp eval 'echo do_shortcode("[sdb_price steam_id=\"1091500\"]");' | grep -q 'cyberpunk-2077'

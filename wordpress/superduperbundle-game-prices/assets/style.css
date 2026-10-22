@@ -1,0 +1,9 @@
+.sdbgp-box { border: 1px solid #dde2ec; border-radius: 10px; padding: 14px 16px; margin: 1em 0; max-width: 420px; line-height: 1.45; }
+.sdbgp-name { font-weight: 700; }
+.sdbgp-price { font-size: 1.6em; font-weight: 700; color: #0b8f5e; margin: 2px 0; }
+.sdbgp-meta { font-size: .9em; opacity: .85; }
+.sdbgp-offers { margin: 6px 0 0 1.1em; padding: 0; font-size: .9em; }
+.sdbgp-link { display: inline-block; margin-top: 10px; padding: 7px 12px; border-radius: 6px; background: #2f4bff; color: #fff !important; text-decoration: none; font-weight: 700; }
+.sdbgp-link:hover, .sdbgp-link:focus { background: #1f37d6; }
+.sdbgp-note { margin-top: 8px; font-size: .75em; opacity: .7; }
+.sdbgp-notice { padding: 8px 10px; border-left: 3px solid #e8a317; background: rgba(232, 163, 23, .08); font-size: .9em; }

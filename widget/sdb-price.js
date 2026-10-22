@@ -38,7 +38,9 @@
     return el;
   };
   const SITE = 'https://superduperbundle.com/';
-  const link = (cls, href, text) => h('a', { class: cls, href: String(href).startsWith(SITE) ? href : SITE, target: '_blank', rel: 'noopener' }, text);
+  // nofollow on every link the box draws: it is a distributed widget (embeds, extension, userscript), and widget links
+  // must not pass ranking signals (Google's link-scheme guidance); the value is the visit, not the link.
+  const link = (cls, href, text) => h('a', { class: cls, href: String(href).startsWith(SITE) ? href : SITE, target: '_blank', rel: 'nofollow noopener' }, text);
   function render(host, g, opts = {}) {
     const root = host.shadowRoot || host.attachShadow({ mode: 'open' });
     const l = g && g.lowest;

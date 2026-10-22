@@ -4,7 +4,7 @@ Tags: games, steam, price comparison, game deals, shortcode
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -29,7 +29,7 @@ This plugin connects to the SuperDuperBundle Game Price API (https://superduperb
 * Service terms: https://superduperbundle.com/tools/api/#terms
 * Privacy policy: https://superduperbundle.com/privacy/
 
-The price box links to the game's comparison page on superduperbundle.com.
+The price box links to the game's comparison page on superduperbundle.com (rel="nofollow").
 
 == Installation ==
 
@@ -52,6 +52,9 @@ When a game cannot be found, visitors see nothing and logged-in editors see a sh
 US dollars, the prices as the stores list them for the United States.
 
 == Changelog ==
+
+= 1.0.1 =
+* The "Compare" link in the price box is rel="nofollow" (a widget link should not pass ranking signals).
 
 = 1.0.0 =
 * First release: shortcode, block, 6-hour cache, optional API key.

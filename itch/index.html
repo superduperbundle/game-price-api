@@ -18,7 +18,7 @@
   <h1>Game Price Overlay for OBS</h1>
   <p>Show the lowest listed PC key price for the game you are playing, live on your stream. Pick a game, then add the link below as an OBS <strong>Browser</strong> source (width 460, height 110).</p>
   <form id="f"><input id="q" placeholder="Game name, e.g. Elden Ring" autocomplete="off"><button>Find</button></form>
-  <div id="box" data-sdb-slug="elden-ring" data-sdb-theme="dark"><a href="https://superduperbundle.com/" target="_blank" rel="noopener">Prices by SuperDuperBundle</a></div>
+  <div id="box" data-sdb-slug="elden-ring" data-sdb-theme="dark"><a href="https://superduperbundle.com/" target="_blank" rel="nofollow noopener">Prices by SuperDuperBundle</a></div>
   <p>OBS browser source URL:</p>
   <code id="url">https://superduperbundle.com/embed/price?slug=elden-ring&amp;theme=dark&amp;refresh=1</code>
   <p>Chat command for Nightbot/StreamElements, website embed and price badge: <a href="https://superduperbundle.com/tools/widget/" target="_blank" rel="noopener">superduperbundle.com/tools/widget</a>. Prices are listed US-dollar prices; stores set fees and the final total at checkout. SuperDuperBundle may earn a commission when you buy through store links on its website.</p>
@@ -30,7 +30,7 @@
       fetch('https://superduperbundle.com/api/v1/lookup/?' + new URLSearchParams({ q: v, limit: '1', client: 'itch' })).then(function (r) { return r.json(); }).then(function (r) {
         var g = r && r.results && r.results[0]; if (!g) { document.getElementById('url').textContent = 'No game found. Try the full name.'; return; }
         var old = document.getElementById('box'), n = old.cloneNode(false); n.setAttribute('data-sdb-slug', g.id); n.removeAttribute('data-sdb-done');
-        var a = document.createElement('a'); a.href = g.url; a.textContent = 'Prices by SuperDuperBundle'; n.appendChild(a); old.replaceWith(n); window.sdbEmbedRefresh();
+        var a = document.createElement('a'); a.rel = 'nofollow noopener'; a.href = g.url; a.textContent = 'Prices by SuperDuperBundle'; n.appendChild(a); old.replaceWith(n); window.sdbEmbedRefresh();
         document.getElementById('url').textContent = 'https://superduperbundle.com/embed/price?slug=' + g.id + '&theme=dark&refresh=1';
       });
     });

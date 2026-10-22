@@ -3,7 +3,7 @@
  * Plugin Name:       SuperDuperBundle Game Prices
  * Plugin URI:        https://superduperbundle.com/tools/wordpress/
  * Description:       Show the lowest listed PC game key price for any game in posts and pages, with a link to the full price comparison. Shortcode [sdb_price game="Elden Ring"] and a block.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            SuperDuperBundle
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SDBGP_VERSION', '1.0.0' );
+define( 'SDBGP_VERSION', '1.0.1' );
 define( 'SDBGP_API', 'https://superduperbundle.com/api/v1/lookup/' );
 define( 'SDBGP_CACHE', 6 * HOUR_IN_SECONDS );
 
@@ -161,7 +161,7 @@ function sdbgp_render( $atts ) {
 		$out  .= '<div class="sdbgp-meta">' . esc_html( $text ) . '</div>';
 		$label = __( 'View prices', 'superduperbundle-game-prices' );
 	}
-	$out .= '<a class="sdbgp-link" href="' . esc_url( $url ) . '" target="_blank" rel="noopener">' . esc_html( $label ) . '</a>';
+	$out .= '<a class="sdbgp-link" href="' . esc_url( $url ) . '" target="_blank" rel="nofollow noopener">' . esc_html( $label ) . '</a>';
 	$out .= '<div class="sdbgp-note">' . esc_html__( 'Prices by SuperDuperBundle. Listed prices in US dollars; stores set fees and the final total at checkout.', 'superduperbundle-game-prices' ) . '</div>';
 	$out .= '</div>';
 	return $out;

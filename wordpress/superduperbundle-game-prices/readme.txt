@@ -1,5 +1,5 @@
 === SuperDuperBundle Game Prices ===
-Contributors: superduperbundle
+Contributors: eslamsaker
 Tags: games, steam, price comparison, game deals, shortcode
 Requires at least: 6.0
 Tested up to: 7.1

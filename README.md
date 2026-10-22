@@ -6,6 +6,7 @@ compares, in US dollars, with the store, when it was checked and a link to the f
 
 - **Documentation:** https://superduperbundle.com/tools/api/
 - **OpenAPI 3.1:** [`openapi.json`](openapi.json) (live copy: https://superduperbundle.com/api/v1/openapi.json)
+- **Postman:** [public collection](https://www.postman.com/eslamsaker804-8787423/superduperbundle-game-price-api/collection/w0ku967/superduperbundle-game-price-api)
 - No key needed. [Free keys](https://superduperbundle.com/tools/api/#keys) raise the limits.
 
 | Package | Install | Folder |

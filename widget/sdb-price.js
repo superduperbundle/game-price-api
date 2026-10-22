@@ -3,6 +3,7 @@
 //   globalThis.sdbRenderPrice(host, game, { theme, localUsd }) -> true when shown   (any element; used by the extension,
 //                                                     whose content scripts have no customElements in Chrome)
 //   <sdb-price theme="light|dark">, el.localUsd = n, el.data = game                 (pages and userscripts)
+//   opts.always = true: also show games whose only price is Steam's (embeds on blogs and streams)
 // game = one result of /api/v1/lookup/; the shell fetches it with its own transport.
 // Nothing is shown for games with no price, when the only price is Steam's own, or when the visitor's own store page
 // already shows a US-dollar price at or below ours (regional pricing: our prices are US prices).
@@ -42,7 +43,8 @@
     const root = host.shadowRoot || host.attachShadow({ mode: 'open' });
     const l = g && g.lowest;
     const local = typeof opts.localUsd === 'number' ? opts.localUsd : null;
-    const worth = !!(g && g.state === 'price' && l && !(g.store_count < 2 && l.store === 'steam') && !(local !== null && local <= l.price));
+    // opts.always (embeds): show single-store prices too; the Steam-page shells keep hiding Steam's own price
+    const worth = !!(g && g.state === 'price' && l && (opts.always || !(g.store_count < 2 && l.store === 'steam')) && !(local !== null && local <= l.price));
     host.hidden = !worth;
     root.replaceChildren();
     if (!worth) return false;

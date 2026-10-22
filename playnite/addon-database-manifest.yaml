@@ -1,0 +1,14 @@
+# For Playnite's add-on database (submissions on hold until the new add-on portal, planned end of 2026).
+AddonId: SuperDuperBundlePrices_0988dd81-b79c-4114-a19e-ba540bc21d7c
+Type: Generic
+Name: SuperDuperBundle Game Prices
+Author: SuperDuperBundle
+ShortDescription: See the lowest listed PC key price for your games across official stores and key stores.
+InstallerManifestUrl: https://raw.githubusercontent.com/superduperbundle/game-price-api/main/playnite/installer.yaml
+SourceUrl: https://github.com/superduperbundle/game-price-api/tree/main/playnite
+Description: Right-click one or more games and choose "Check key prices on SuperDuperBundle" to see the lowest listed PC key price, the store and how many stores were compared, with a link to the full comparison. Sends only the selected games' Steam app IDs or names; no account, no settings.
+Tags: ["Prices", "Deals", "Keys", "Steam"]
+Links:
+    Website: https://superduperbundle.com/tools/playnite/
+    GitHub: https://github.com/superduperbundle/game-price-api
+IconUrl: https://raw.githubusercontent.com/superduperbundle/game-price-api/main/playnite/SuperDuperBundlePrices/icon.png

@@ -1,0 +1,8 @@
+AddonId: SuperDuperBundlePrices_0988dd81-b79c-4114-a19e-ba540bc21d7c
+Packages:
+  - Version: 1.0.0
+    RequiredApiVersion: 6.9.0
+    ReleaseDate: 2026-10-23
+    PackageUrl: https://github.com/superduperbundle/game-price-api/releases/download/playnite-v1.0.0/SuperDuperBundlePrices_1_0_0.pext
+    Changelog:
+      - First release: right-click games -> Check key prices on SuperDuperBundle.

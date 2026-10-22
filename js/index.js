@@ -1,3 +1,4 @@
+// @ts-self-types="./index.d.ts"
 // SuperDuperBundle Game Price API client (https://superduperbundle.com/tools/api/). Zero dependencies; Node 18+, Deno,
 // Bun and browsers (any runtime with fetch). Code: MIT. Data: under the API terms (https://superduperbundle.com/tools/api/#terms):
 // whenever you display it, show a visible link to SuperDuperBundle (link each price to the game's `url`).

@@ -1,13 +1,14 @@
 # Publishing on a tag, with no long-lived tokens: npm and PyPI trusted publishing (GitHub OIDC), MCP registry login via
 # GitHub OIDC. Tags: js-v1.0.1 (npm superduperbundle), mcp-v1.0.1 (npm @superduperbundle/mcp-server + MCP registry),
-# py-v1.0.1 (PyPI superduperbundle). Bump the version in the package file first; the tag must match it.
+# py-v1.0.1 (PyPI superduperbundle), jsr-v1.0.1 (JSR @superduperbundle/game-prices; the JSR package is linked to this
+# repository in its settings, so `jsr publish` authenticates with GitHub OIDC). Bump the version in the package file first; the tag must match it.
 # One-time setup (owner): npm package settings -> Trusted publisher -> GitHub Actions, repo superduperbundle/game-price-api,
 # workflow publish.yml (npm needs the package to exist: the first version is published by hand). PyPI: add a pending
 # trusted publisher for project "superduperbundle", same repo + workflow, environment "pypi".
 name: Publish
 on:
   push:
-    tags: ['js-v*', 'mcp-v*', 'py-v*']
+    tags: ['js-v*', 'mcp-v*', 'py-v*', 'jsr-v*']
 permissions:
   contents: read
   id-token: write
@@ -46,3 +47,19 @@ jobs:
         run: cp ../LICENSE . && python -m pip install build && python -m build
       - uses: pypa/gh-action-pypi-publish@release/v1
         with: { packages-dir: python/dist }
+  jsr:
+    if: startsWith(github.ref_name, 'jsr-v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Check tag = jsr.json version
+        working-directory: js
+        run: test "v$(node -p "require('./jsr.json').version")" = "${GITHUB_REF_NAME#jsr-}"
+      - name: Test
+        working-directory: js
+        run: node test.js
+      - name: Publish to JSR
+        working-directory: js
+        run: cp ../LICENSE . && npx jsr publish

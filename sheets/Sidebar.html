@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body { font: 13px/1.45 Arial, sans-serif; margin: 12px; color: #10162B; }
+    input { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid #C9D0DE; border-radius: 6px; font: inherit; }
+    button { margin-top: 8px; padding: 7px 12px; border: 0; border-radius: 6px; background: #2F4BFF; color: #fff; font-weight: bold; cursor: pointer; }
+    .game { border: 1px solid #DDE2EC; border-radius: 8px; padding: 10px; margin-top: 12px; }
+    .price { font-size: 20px; font-weight: bold; color: #0B8F5E; }
+    .muted { color: #5A6378; font-size: 12px; }
+    ol { padding-left: 18px; margin: 6px 0; }
+    a { color: #2F4BFF; }
+  </style>
+</head>
+<body>
+  <label for="q"><b>Game name or Steam app ID</b></label>
+  <input id="q" placeholder="Elden Ring" autofocus>
+  <button id="go">Look up</button>
+  <div id="out"></div>
+  <p class="muted">US-dollar listed prices as each store shows them; stores set fees and the final total at checkout. Prices by <a href="https://superduperbundle.com/tools/sheets/" target="_blank">SuperDuperBundle</a>, which may earn a commission from store links on its website.</p>
+  <script>
+    var out = document.getElementById('out');
+    function el(tag, attrs, text) { var e = document.createElement(tag); for (var k in attrs || {}) e.setAttribute(k, attrs[k]); if (text) e.textContent = text; return e; }
+    function money(n) { return '$' + Number(n).toFixed(2); }
+    function show(results) {
+      out.replaceChildren();
+      if (!results || !results.length) { out.append(el('p', { class: 'muted' }, 'No game found.')); return; }
+      results.forEach(function (g) {
+        var box = el('div', { class: 'game' });
+        box.append(el('div', null, g.name));
+        if (g.lowest) {
+          box.append(el('div', { class: 'price' }, money(g.lowest.price)));
+          box.append(el('div', { class: 'muted' }, 'Lowest listed price at ' + g.lowest.store_name + ' · ' + g.store_count + ' store' + (g.store_count === 1 ? '' : 's')));
+          var ol = el('ol');
+          (g.offers || []).slice(0, 5).forEach(function (o) { ol.append(el('li', null, o.store_name + ': ' + money(o.price))); });
+          box.append(ol);
+        } else box.append(el('div', { class: 'muted' }, g.state === 'free' ? 'Free to play' : 'Not on sale at the stores we compare'));
+        var a = el('a', { href: g.url, target: '_blank' }, 'Compare all prices');
+        box.append(a);
+        var ins = el('button', null, 'Insert =GAMEPRICE in the selected cell');
+        ins.onclick = function () { google.script.run.insertFormula(g.steam_app_id || g.name); };
+        box.append(ins);
+        out.append(box);
+      });
+    }
+    function go() {
+      var q = document.getElementById('q').value.trim();
+      if (!q) return;
+      out.replaceChildren(el('p', { class: 'muted' }, 'Looking up…'));
+      google.script.run.withSuccessHandler(show).withFailureHandler(function (e) { out.replaceChildren(el('p', { class: 'muted' }, String(e && e.message || e))); }).sidebarLookup(q);
+    }
+    document.getElementById('go').onclick = go;
+    document.getElementById('q').addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
+  </script>
+</body>
+</html>

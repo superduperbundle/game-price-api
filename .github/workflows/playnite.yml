@@ -1,0 +1,42 @@
+name: Playnite add-on
+on:
+  push:
+    branches: [main]
+    paths: ['playnite/**', '.github/workflows/playnite.yml']
+    tags: ['playnite-v*']
+  pull_request:
+    paths: ['playnite/**']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: dotnet build playnite/SuperDuperBundlePrices/SuperDuperBundlePrices.csproj -c Release -restore
+      - name: Get Playnite Toolbox
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/JosefNemec/Playnite/releases/download/10.62/10.62.7z" -OutFile Playnite.7z
+          & "$env:ProgramFiles\7-Zip\7z.exe" x Playnite.7z "-oPlaynite" | Out-Null
+      - name: Pack
+        run: |
+          $out = "playnite\SuperDuperBundlePrices\bin\Release\net462"
+          $playniteDlls = Get-ChildItem Playnite -Filter *.dll -Name
+          Remove-Item "$out\*" -Include $playniteDlls
+          Get-ChildItem $out
+          mkdir pack | Out-Null
+          & .\Playnite\Toolbox.exe pack $out pack
+          Get-ChildItem pack
+          $ver = (Select-String -Path playnite\SuperDuperBundlePrices\extension.yaml -Pattern "^Version: '(.+)'").Matches[0].Groups[1].Value
+          Move-Item pack\*.pext "SuperDuperBundlePrices_$($ver -replace '\.','_').pext"
+      - uses: actions/upload-artifact@v4
+        with: { name: pext, path: '*.pext' }
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/playnite-v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: '*.pext'
+          name: Playnite add-on ${{ github.ref_name }}
+          body: 'SuperDuperBundle Game Prices for Playnite. Install: download the .pext and open it with Playnite (or drag it onto the Playnite window).'

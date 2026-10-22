@@ -1,0 +1,12 @@
+Id: SuperDuperBundlePrices_0988dd81-b79c-4114-a19e-ba540bc21d7c
+Name: SuperDuperBundle Game Prices
+Author: SuperDuperBundle
+Version: '1.0.0'
+Module: SuperDuperBundlePrices.dll
+Type: GenericPlugin
+Icon: icon.png
+Links:
+  - Name: Website
+    Url: https://superduperbundle.com/tools/playnite/
+  - Name: Source code
+    Url: https://github.com/superduperbundle/game-price-api/tree/main/playnite

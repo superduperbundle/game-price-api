@@ -21,3 +21,8 @@ jobs:
       - name: MCP server (live)
         working-directory: mcp
         run: npm ci && node test.js
+      - uses: actions/setup-go@v5
+        with: { go-version: '1.22' }
+      - name: Go client (offline)
+        working-directory: go
+        run: gofmt -l . | (! grep .) && go vet ./... && go test ./...
